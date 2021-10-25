@@ -3,8 +3,10 @@ const Database = require("../models/database.model.js");
 
 class ChannelsController {
 	static getAllChannels(req, res) {
-		// Get all channel Id's who
 		const usersChannelsDb = new Database("usersChannels");
+
+		
+		
 		usersChannelsDb
 			.find({ userId: ObjectId(req.body.userId) }, {})
 			.toArray()
@@ -30,9 +32,9 @@ class ChannelsController {
 				if (result) {
 					res.status(200).send({ data: result });
 				} else {
-					res
-						.status(500)
-						.send({ err: "User " + req.params.channelId + " does not exist" });
+					res.status(500).send({
+						err: "Channel " + req.params.channelId + " does not exist",
+					});
 				}
 			})
 			.catch((err) => {
@@ -48,11 +50,11 @@ class ChannelsController {
 
 		let inviteLink =
 			req.protocol +
-			"//" +
+			"://" +
 			req.get("host") +
 			"/api/channels/invite/" +
 			encodeURI(req.body.name) +
-			"-" +
+			"+" +
 			req.body.userId;
 
 		const channelData = {
@@ -62,7 +64,7 @@ class ChannelsController {
 			inviteUrl: inviteLink,
 		};
 
-		// console.log(channelData);
+		
 
 		// Insert channel data
 		// AND then create userChannel register with owner
@@ -75,7 +77,6 @@ class ChannelsController {
 					channelId: channelsResult.insertedId,
 				};
 
-				
 				// Add user to channel (insert into usersChannels)
 				usersChannelsDb
 					.insertOne(usersChannelsData)
@@ -88,6 +89,53 @@ class ChannelsController {
 			})
 			.catch((err) => {
 				res.status(500).send({ err: "Couldn't create channel" });
+			});
+	}
+
+	static joinChannel(req, res) {
+		const channelsDb = new Database("channels");
+		const usersChannelsDb = new Database("usersChannels");
+
+		let channelSpecifier = req.params.inviteUrl;
+		let channelName = decodeURI(channelSpecifier.split("+")[0]);
+		let owner = channelSpecifier.split("+")[1];
+
+		
+		
+
+		// Check if channel exists,
+		channelsDb
+			.findOne({ name: channelName, owner: ObjectId(owner) }, {})
+			.then((channelsResult) => {
+				if (channelsResult) {
+					// If channel does exist, add user from token to channel (insert into usersChannels db)
+					let userToAdd = {
+						userId: ObjectId(req.body.userId),
+						channelId: ObjectId(channelsResult._id),
+					};
+					
+
+					usersChannelsDb
+						.insertOne(userToAdd)
+						.then((usersChannelsResult) => {
+							
+							if (usersChannelsResult) {
+								res.status(200).send({ status: usersChannelsResult });
+							} else {
+								res
+									.status(400)
+									.send({ status: "Couldn't add user to channel" });
+							}
+						})
+						.catch((err) => {
+							res.status(500).send({ err });
+						});
+				} else {
+					res.status(400).send({ msg: "Channel not found" });
+				}
+			})
+			.catch((err) => {
+				res.status(500).send({ err });
 			});
 	}
 

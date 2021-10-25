@@ -4,17 +4,17 @@ const Database = require("../models/database.model.js");
 class MessagesController {
 	static createMessage(req, res) {
 		const messagesDB = new Database("messages");
-		const userChannelsDB = new Database("userChannels");
+		const usersChannelsDB = new Database("userChannels");
 
 		let userId = ObjectId(req.body.userId);
 		let channelId = ObjectId(req.params.channelId);
 
 		// Find if user is in channel
-		userChannelsDB
+		usersChannelsDB
 			.find(
 				{
-					idUser: ObjectId(req.body.userId),
-					idChannel: ObjectId(req.params.channelId),
+					userId: ObjectId(req.body.userId),
+					channelId: ObjectId(req.params.channelId),
 				},
 				{}
 			)
@@ -45,40 +45,44 @@ class MessagesController {
 		const messagesDB = new Database("messages");
 		const usersChannelsDB = new Database("usersChannels");
 
-		console.log(req.body.userId);
-		console.log(req.params.channelId);
 		// Find if user is in channel
 		usersChannelsDB
 			.findOne(
 				{
-					idUser: ObjectId(req.body.userId),
-					idChannel: ObjectId(req.params.channelId),
+					userId: ObjectId(req.body.userId),
+					channelId: ObjectId(req.params.channelId),
 				},
 				{}
 			)
-			.then((result) => {
-				if (result) {
-					// If match between user and channel WASN'T found:
-					res
-						.status(403)
-						.send({ data: "Not allowed to see messages in this channel" });
-				} else {
-					// If match between user and channel WAS found:
+			.then((usersChannelsResult) => {
+				console.log(ObjectId(req.body.userId));
+				console.log(ObjectId(req.params.channelId));
+				console.log({
+					userId: ObjectId(req.body.userId),
+					channelId: ObjectId(req.params.channelId),
+				});
+				if (usersChannelsResult) {
+					// If user is found to be in a channel, get messages from channel
 					messagesDB
 						.find({ channel: ObjectId(req.params.channelId) }, {})
 						.toArray()
-						.then((results) => {
-							if (results.length === 0) {
+						.then((messaggesResult) => {
+							if (messaggesResult.length === 0) {
 								res
 									.status(400)
 									.send({ msg: "No messages in this channel yet!" });
 							} else {
-								res.status(200).send({ data: results });
+								res.status(200).send({ data: messaggesResult });
 							}
 						})
 						.catch((err) => {
 							res.status(500).send({ err });
 						});
+				} else {
+					// If match between user and channel WAS NOT found:
+					res
+						.status(403)
+						.send({ data: "Not allowed to see messages in this channel" });
 				}
 			})
 			.catch((err) => {

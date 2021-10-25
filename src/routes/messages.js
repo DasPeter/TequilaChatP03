@@ -33,7 +33,7 @@ router.get(
  * paths:
  *   /api/messages/:
  *     post:
- *       description: Creates a message
+ *       description: Creates a message in the channel specified with the user from the bearer token as author. Can only create a message if user is a member of the channel.
  *       tags:
  *         - messages
  *       parameters:

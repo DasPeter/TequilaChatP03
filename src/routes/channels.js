@@ -23,7 +23,7 @@ router.get("/", val.validateSession, channelsController.getAllChannels);
  * paths:
  *   /api/channels/{channelId}:
  *     get:
- *       description: Get a user by ID.
+ *       description: Gets the channel data by ID.
  *       tags:
  *         - channels
  *       parameters:
@@ -47,7 +47,7 @@ router.get(
  * paths:
  *   /api/channels/:
  *     post:
- *       description: Creates a channel
+ *       description: Creates a channel with user from bearer token as owner. Will add owner to the channel.
  *       tags:
  *         - channels
  *       parameters:
@@ -79,7 +79,7 @@ router.post("/", val.validateSession, channelsController.createChannel);
  * paths:
  *   /api/channels/invite/{inviteUrl}:
  *     post:
- *       description: Joins the user specified by bearer token to the channel associated to the URL.
+ *       description: Joins the user specified by bearer token to the channel associated to the URL invite code.
  *       tags:
  *         - channels
  *       parameters:

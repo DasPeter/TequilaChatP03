@@ -19,14 +19,11 @@ function validateSession(req, res, next) {
 				res.status(400).send({ error: "Invalid token" });
 			} else {
 				// If it is valid, THEN CHECK wether token exists in database's sessions
-				// console.log(deciphered.userId);
-				// console.log(token);
 				sessionsDb
 					.findOne({ token: token }, {})
 					.then((sessionsResult) => {
 						if (sessionsResult) {
 							req.body.userId = sessionsResult.userId; // If it did exist, save UserId in req
-							// console.log(req.body);
 							next(); // and continue to next()
 						} else {
 							// If session didn't exist, return error

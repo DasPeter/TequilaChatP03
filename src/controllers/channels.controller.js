@@ -5,8 +5,6 @@ class ChannelsController {
 	static getAllChannels(req, res) {
 		const usersChannelsDb = new Database("usersChannels");
 
-		
-		
 		usersChannelsDb
 			.find({ userId: ObjectId(req.body.userId) }, {})
 			.toArray()
@@ -64,8 +62,6 @@ class ChannelsController {
 			inviteUrl: inviteLink,
 		};
 
-		
-
 		// Insert channel data
 		// AND then create userChannel register with owner
 		channelsDb
@@ -100,9 +96,6 @@ class ChannelsController {
 		let channelName = decodeURI(channelSpecifier.split("+")[0]);
 		let owner = channelSpecifier.split("+")[1];
 
-		
-		
-
 		// Check if channel exists,
 		channelsDb
 			.findOne({ name: channelName, owner: ObjectId(owner) }, {})
@@ -113,12 +106,10 @@ class ChannelsController {
 						userId: ObjectId(req.body.userId),
 						channelId: ObjectId(channelsResult._id),
 					};
-					
 
 					usersChannelsDb
 						.insertOne(userToAdd)
 						.then((usersChannelsResult) => {
-							
 							if (usersChannelsResult) {
 								res.status(200).send({ status: usersChannelsResult });
 							} else {

@@ -32,7 +32,7 @@ class SessionsController {
 					sessionsDb
 						.insertOne(sessionData)
 						.then((result) => {
-							res.send({ status: result });
+							res.send({ token: newToken });
 						})
 						.catch((err) => {
 							res.status(400).send(err);
@@ -40,17 +40,12 @@ class SessionsController {
 				} else {
 					res
 						.status(500)
-						.send({ err: "User " + req.params.userId + " does not exist" });
+						.send({ err: "User " + req.body.email + " does not exist" });
 				}
 			})
 			.catch((err) => {
 				res.status(500).send({ err });
 			});
-		// checar que exista correo
-		// si sí,
-		// objeto mandarlo a guardar a sessions
-		// si no
-		//  res.status(401).send({msg: "Unauthorized"})
 	}
 }
 

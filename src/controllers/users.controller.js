@@ -9,7 +9,7 @@ class UsersController {
 			.toArray()
 			.then((results) => {
 				if (results.length === 0) {
-					res.status(400).send({ msg: "No users found!" });
+					res.status(200).send({ msg: "No users found!" });
 				} else {
 					res.status(200).send({ data: results });
 				}
@@ -21,6 +21,7 @@ class UsersController {
 
 	static getUserById(req, res) {
 		const usersDb = new Database("users");
+
 		usersDb
 			.findOne({ _id: ObjectID(req.params.userId) }, {})
 			.then((result) => {
@@ -28,7 +29,7 @@ class UsersController {
 					res.status(200).send({ data: result });
 				} else {
 					res
-						.status(500)
+						.status(200)
 						.send({ err: "User " + req.params.userId + " does not exist" });
 				}
 			})
@@ -43,38 +44,42 @@ class UsersController {
 		const userData = req.body;
 		usersDb
 			.insertOne(userData)
-			.then((result) => {
-				res.send({ status: result });
+			.then((usersResult) => {
+				if (usersResult.acknowledged) {
+					res.send({ status: usersResult });
+				} else {
+					res.status(400).send(result);
+				}
 			})
 			.catch((err) => {
-				res.status(400).send(err);
+				res.status(500).send(err);
 			});
 	}
 
 	// Unused for the moment
-	static deleteUser(req, res) {
-		const usersDb = new Database("users");
-		usersDb
-			.deleteOne({ _id: ObjectID(req.params.userId) })
-			.then((result) => {
-				res.send({ status: result });
-			})
-			.catch((err) => {
-				res.status(400).send(err);
-			});
-	}
+	// static deleteUser(req, res) {
+	// 	const usersDb = new Database("users");
+	// 	usersDb
+	// 		.deleteOne({ _id: ObjectID(req.params.userId) })
+	// 		.then((result) => {
+	// 			res.send({ status: result });
+	// 		})
+	// 		.catch((err) => {
+	// 			res.status(400).send(err);
+	// 		});
+	// }
 
-	static updateUser(req, res) {
-		const usersDb = new Database("users");
-		usersDb
-			.updateOne({ _id: ObjectID(req.params.userId) }, { $set: req.body })
-			.then((result) => {
-				res.send({ status: result });
-			})
-			.catch((err) => {
-				res.status(400).send(err);
-			});
-	}
+	// static updateUser(req, res) {
+	// 	const usersDb = new Database("users");
+	// 	usersDb
+	// 		.updateOne({ _id: ObjectID(req.params.userId) }, { $set: req.body })
+	// 		.then((result) => {
+	// 			res.send({ status: result });
+	// 		})
+	// 		.catch((err) => {
+	// 			res.status(400).send(err);
+	// 		});
+	// }
 }
 
 module.exports = UsersController;

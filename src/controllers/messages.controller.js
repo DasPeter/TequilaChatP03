@@ -69,7 +69,7 @@ class MessagesController {
 						.then((messaggesResult) => {
 							if (messaggesResult.length === 0) {
 								res
-									.status(400)
+									.status(200)
 									.send({ msg: "No messages in this channel yet!" });
 							} else {
 								res.status(200).send({ data: messaggesResult });
